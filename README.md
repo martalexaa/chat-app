@@ -27,7 +27,7 @@ location.
 
 ### Dependencies
 
-* see package.json
+* See package.json
 
 ### Installing
 
@@ -36,11 +36,9 @@ location.
 
 ### Executing program
 
-* How to run the program
-* Step-by-step bullets
-```
-code blocks for commands
-```
+`npx expo start`
+
+* Use the Expo Go app on an Android phone or the device emulator in Android Studio. 
 
 ## Help
 
