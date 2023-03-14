@@ -23,6 +23,10 @@ location.
   <li>Data gets stored online and offline.</li>
 </ul>
 
+## Built with
+
+* React Native
+
 ## Getting Started
 
 ### Dependencies
