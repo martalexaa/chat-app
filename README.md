@@ -31,8 +31,7 @@ location.
 
 ### Installing
 
-* How/where to download your program
-* Any modifications needed to be made to files/folders
+* Download the GitHub repo and install all the dependencies. 
 
 ### Executing program
 
@@ -40,12 +39,10 @@ location.
 npx expo start
 ```
 
-* Use the Expo Go app on an Android phone or the device emulator in Android Studio. 
+* Use the Expo Go app on an Android smartphone or the device emulator in Android Studio. 
 
 
-## Authors
-
-Contributors names and contact info
+## Author
 
 Marta Karaba
 martalexa@gmail.com
