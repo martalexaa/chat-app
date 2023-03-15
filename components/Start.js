@@ -26,11 +26,10 @@ const Start = ({ navigation }) => {
 
 
     return (
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={styles.container}>
+        <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <ImageBackground source={require('../assets/Background-Image.png')} resizeMode="cover" style={styles.image}>
-                    <Text style={styles.title}>Chat</Text>
+                    <Text style={styles.title}>Chat App</Text>
                     <View style={styles.box}>
                         <TextInput
                             style={styles.textInput}
@@ -112,11 +111,13 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     title: {
+        flex: 2,
+        justifyContent: 'space-between',
         fontSize: 50,
         fontWeight: 600,
         textAlign: 'center',
         color: '#ffff',
-        marginTop: 60,
+        marginTop: 60
     },
     box: {
         height: "44%",
