@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { StyleSheet, View, Text, KeyboardAvoidingView, Platform } from 'react-native';
-import { GiftedChat, Bubble } from "react-native-gifted-chat";
-import { collection, query, orderBy, onSnapshot, addDoc } from "firebase/firestore";
+import { StyleSheet, View, KeyboardAvoidingView, Platform } from 'react-native';
+import { GiftedChat, Bubble, InputToolbar } from "react-native-gifted-chat";
+import { collection, query, orderBy, onSnapshot, addDoc, where } from "firebase/firestore";
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 
-const Chat = ({ db, route, navigation }) => {
+const Chat = ({ db, route, navigation, isConnected }) => {
     const { userID, name, color } = route.params;
     const [messages, setMessages] = useState([]);
 
@@ -13,36 +14,51 @@ const Chat = ({ db, route, navigation }) => {
         addDoc(collection(db, "messages"), newMessages[0])
     }
 
+    //cachedMessages is initialized to null, which is the correct type for the value returned by AsyncStorage.getItem. 
+    //Then, if cachedMessages is truthy (i.e., not null), the cached messages will be parsed and set with setMessages.
+    const loadCachedMessages = async () => {
+        const cachedMessages = await AsyncStorage.getItem("messages") || [];
+        if (cachedMessages) {
+            setMessages(JSON.parse(cachedMessages));
+        }
+    }
+
+    let unsubscribe;
+
     useEffect(() => {
-        //fetch messages from the database in real time
-        //declared messagesRef and q constants to make it easier to construct the query
-        const messagesRef = collection(db, "messages");
-        const q = query(messagesRef, orderBy("createdAt", "desc"));
-        const unsubscribe = onSnapshot(q, (querySnapshot) => {
-            const messages = querySnapshot.docs.map((doc) => {
-                const firebaseData = doc.data();
+        if (isConnected === true) {
+            //fetch messages from the database in real time
+            //declared messagesRef and q constants to make it easier to construct the query
+            const messagesRef = collection(db, "messages");
+            const q = query(messagesRef, orderBy("createdAt", "desc"));
+            unsubscribe = onSnapshot(q, (querySnapshot) => {
+                const messages = querySnapshot.docs.map((doc) => {
+                    const firebaseData = doc.data();
 
-                const data = {
-                    _id: doc.id,
-                    text: '',
-                    createdAt: new Date(),
-                    ...firebaseData,
-                };
+                    const data = {
+                        _id: doc.id,
+                        text: '',
+                        createdAt: new Date(),
+                        ...firebaseData,
+                    };
 
-                data.createdAt = data.createdAt.toDate();
+                    data.createdAt = data.createdAt.toDate();
 
-                return data;
+                    return data;
+                });
+                cacheMessages(messages);
+                setMessages(messages);
             });
-            setMessages(messages);
-        });
+        } else loadCachedMessages();
         //make sure that the onSnapshot() listener is cleaned up when the component unmounts
-        return unsubscribe;
-        //the empty dependency array ensures that this code only runs once when the component mounts
-    }, []);
+        return () => {
+            if (unsubscribe) unsubscribe();
+        }
+    }, [isConnected]);
 
     useEffect(() => {
         navigation.setOptions({ title: name });
-    });
+    }, [])
 
     const renderBubble = (props) => {
         return <Bubble
@@ -58,6 +74,25 @@ const Chat = ({ db, route, navigation }) => {
         />
     }
 
+    //cache messages 
+    //only call AsyncStorage.setItem() if listsToCache is an array
+    const cacheMessages = async (messagesToCache) => {
+        try {
+            if (Array.isArray(messagesToCache)) {
+                await AsyncStorage.setItem('messages', JSON.stringify(messagesToCache));
+            } else {
+                console.log('messagesToCache is not an array');
+            }
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
+    const renderInputToolbar = (props) => {
+        if (isConnected) return <InputToolbar {...props} />;
+        else return null;
+    }
+
 
     return (
         <View
@@ -65,6 +100,7 @@ const Chat = ({ db, route, navigation }) => {
             <GiftedChat
                 messages={messages}
                 renderBubble={renderBubble}
+                renderInputToolbar={renderInputToolbar}
                 onSend={messages => onSend(messages)}
                 user={{
                     _id: userID,

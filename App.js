@@ -11,24 +11,45 @@ const Stack = createNativeStackNavigator();
 
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, disableNetwork, enableNetwork } from "firebase/firestore";
 
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyCGIvy_H7xuST6NQX833o-5RtrvIvR7osE",
-  authDomain: "chat-app-f3f9b.firebaseapp.com",
-  projectId: "chat-app-f3f9b",
-  storageBucket: "chat-app-f3f9b.appspot.com",
-  messagingSenderId: "115026731849",
-  appId: "1:115026731849:web:33523b616b244b70d53098"
-};
+import { useNetInfo } from '@react-native-community/netinfo';
+import { useEffect } from "react";
+import { LogBox, Alert } from "react-native";
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-
-const db = getFirestore(app);
+LogBox.ignoreLogs(["AsyncStorage has been extracted from"]);
 
 const App = () => {
+
+  //define a new state that represents the network connectivity status
+  const connectionStatus = useNetInfo();
+
+  //display an alert popup if connection is lost
+  useEffect(() => {
+    if (connectionStatus.isConnected === false) {
+      Alert.alert("Connection Lost!");
+      disableNetwork(db);
+    } else if (connectionStatus.isConnected === true) {
+      enableNetwork(db);
+    }
+  }, [connectionStatus.isConnected]);
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyCGIvy_H7xuST6NQX833o-5RtrvIvR7osE",
+    authDomain: "chat-app-f3f9b.firebaseapp.com",
+    projectId: "chat-app-f3f9b",
+    storageBucket: "chat-app-f3f9b.appspot.com",
+    messagingSenderId: "115026731849",
+    appId: "1:115026731849:web:33523b616b244b70d53098"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+
+  // Initialize Cloud Firestore and get a reference to the service
+  const db = getFirestore(app);
+
   return (
     <NavigationContainer>
       <Stack.Navigator
@@ -39,8 +60,9 @@ const App = () => {
           component={Start}
         />
         <Stack.Screen
-          name="Chat">
-          {props => <Chat db={db} {...props} />}
+          name="Chat"
+        >
+          {props => <Chat isConnected={connectionStatus.isConnected} db={db} {...props} />}
         </Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>
