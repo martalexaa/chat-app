@@ -1,3 +1,5 @@
+//import { API_KEY, AUTH_DOMAIN, PROJECT_ID, STORAGE_BUCKET, SENDER_ID, APP_ID } from "@env"
+
 // import the screens
 import Start from './components/Start';
 import Chat from './components/Chat';
@@ -37,12 +39,12 @@ const App = () => {
 
   // Your web app's Firebase configuration
   const firebaseConfig = {
-    apiKey: "AIzaSyCGIvy_H7xuST6NQX833o-5RtrvIvR7osE",
-    authDomain: "chat-app-f3f9b.firebaseapp.com",
-    projectId: "chat-app-f3f9b",
-    storageBucket: "chat-app-f3f9b.appspot.com",
-    messagingSenderId: "115026731849",
-    appId: "1:115026731849:web:33523b616b244b70d53098"
+    apiKey: process.env.API_KEY,
+    authDomain: process.env.AUTH_DOMAIN,
+    projectId: process.env.PROJECT_ID,
+    storageBucket: process.env.STORAGE_BUCKET,
+    messagingSenderId: process.env.SENDER_ID,
+    appId: process.env.APP_ID
   };
 
   // Initialize Firebase
